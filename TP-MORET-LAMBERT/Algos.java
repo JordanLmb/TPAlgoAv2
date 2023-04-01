@@ -20,112 +20,146 @@ public class Algos {
 
     //int sol = 0;
     public static Solution algoFPT1(InstanceDec id) {
-        //algorithme qui décide id (c'est à dire si opt(id.i) >= id.c) en branchant (en 4^k) dans les 4 directions pour chacun des k pas
-        //retourne une solution de valeur >= c si une telle solution existe, et null sinon
-        //Ne doit pas modifier le paramètre
-        //Rappel : si c==0, on peut retourner la solution égale au point de départ puisque l'on est pas obligé d'utiliser les k pas
-        // (on peut aussi retourner une solution plus longue si on veut)
-        //Remarque : quand vous aurez codé la borneSup, pensez à l'utiliser dans cet algorithme pour ajouter un cas de base
-
-        //à compléter
-        //id.i = instance
-        //id.c = np
-        //id.i.startingP = case départ
-        //id.i.k = k
-        //id.i.plateau = grille
-        /*Instance newInst = Instance(id.i);
-        Solution sol = new Solution(id.i.startingP);
-      if(id.c == 0 && id.i.k == 0) {
-        return sol;
-      }*/
-     /* 
-      if(sol == id.c) {
-          return true;
-        }
-        if(id.i.k == 0) {
-          return false;
-        }
-        if((sol+id.i.k)< id.c){
-          return false;
-        }
-        if(id.i.plateau(id.i.startingP)==true) {
-          sol++;
-          id.i.plateau(id.i.startingP)==false;
-        }
-        return algo(gauche || droite || haut || bas)
-      */
-        InstanceDec i = new InstanceDec(id.i,id.c);
+        InstanceDec i = new InstanceDec(id.i, id.c);
         return algoFPT1rec(i, new Solution());
     }
 
     private static Solution algoFPT1rec(InstanceDec id, Solution sol) {
-      // previous : 0 debut, 1 gauche, 2 droite, 3 haut, 4 bas
-      // ajout du chemin à la solution
         sol.add(id.i.getStartingP());
-      // cas de base
-      if(sol.piecesRamassees(id.i.getListeCoordPieces()) == id.c) {
-        //System.out.println("Solution trouvée : " + sol);
-        return sol;
-      }
-      if(id.i.getK() == 0) {
-        //System.out.println("Plus de déplacements... ");
+
+        if (sol.piecesRamassees(id.i.getListeCoordPieces()) == id.c) {
+            return sol;
+        }
+
+        if (id.i.getK() == 0 || sol.getNbPieces() + id.i.borneSup() < id.c) {
+            return null;
+        }
+
+        InstanceDec idc = new InstanceDec(id.i, id.c);
+        idc.i.setK(id.i.getK() - 1);
+
+        if (id.i.getStartingP().getL() != 0) {
+            idc.i.setStartingP(new Coord(id.i.getStartingP().getL() - 1, id.i.getStartingP().getC()));
+            return algoFPT1rec(idc, sol);
+        }
+
+        if (id.i.getStartingP().getL() != id.i.getNbL() - 1) {
+            idc.i.setStartingP(new Coord(id.i.getStartingP().getL() + 1, id.i.getStartingP().getC()));
+            return algoFPT1rec(idc, sol);
+        }
+
+        if (id.i.getStartingP().getC() != 0) {
+            idc.i.setStartingP(new Coord(id.i.getStartingP().getL(), id.i.getStartingP().getC() - 1));
+            return algoFPT1rec(idc, sol);
+        }
+
+        if (id.i.getStartingP().getC() != id.i.getNbC() - 1) {
+            idc.i.setStartingP(new Coord(id.i.getStartingP().getL(), id.i.getStartingP().getC() + 1));
+            return algoFPT1rec(idc, sol);
+        }
+
         return null;
+    }
+
+
+
+
+
+    public static Solution algoFPT1DP(InstanceDec id, HashMap<InstanceDec, Solution> table) {
+      // Si id est déjà dans la table, on renvoie la solution correspondante
+      if (table.containsKey(id)) {
+          return table.get(id);
       }
-      // copie de l'instance
-      InstanceDec idc = new InstanceDec(id.i,id.c);
-      idc.i.setK(id.i.getK()-1);
-      // Tester les côtés possibles
-      // Point de départ : pas à gauche => tester à gauche
-      if(id.i.getStartingP().getL() != 0){
-        idc.i.setStartingP(new Coord(id.i.getStartingP().getL() - 1, id.i.getStartingP().getC()));
-        return algoFPT1rec(idc, sol);
+  
+      Solution sol = new Solution();
+      sol.add(id.i.getStartingP());
+  
+      if (sol.piecesRamassees(id.i.getListeCoordPieces()) == id.c) {
+          table.put(id, sol);
+          return sol;
       }
-      // Point de départ : pas à droite => tester à droite
-      if(id.i.getStartingP().getL() != id.i.getNbL() - 1){
-        idc.i.setStartingP(new Coord(id.i.getStartingP().getL() + 1, id.i.getStartingP().getC()));
-        return algoFPT1rec(idc, sol);
+  
+      if (id.i.getK() == 0 || sol.getNbPieces() + id.i.borneSup() < id.c) {
+          return null;
       }
-      // Point de départ : pas en haut => tester en haut
-      if(id.i.getStartingP().getC() != 0){
-        idc.i.setStartingP(new Coord(id.i.getStartingP().getL(), id.i.getStartingP().getC() - 1));
-        return algoFPT1rec(idc, sol);
+  
+      InstanceDec idc = new InstanceDec(id.i, id.c);
+      idc.i.setK(id.i.getK() - 1);
+  
+      Solution sol1 = null;
+      if (id.i.getStartingP().getL() != 0) {
+          idc.i.setStartingP(new Coord(id.i.getStartingP().getL() - 1, id.i.getStartingP().getC()));
+          sol1 = algoFPT1DP(idc, table);
       }
-      // Point de départ : pas en bas => tester en bas
-      if(id.i.getStartingP().getC() != id.i.getNbC() - 1){
-        idc.i.setStartingP(new Coord(id.i.getStartingP().getL(), id.i.getStartingP().getC() + 1));
-        return algoFPT1rec(idc, sol);
+  
+      Solution sol2 = null;
+      if (id.i.getStartingP().getL() != id.i.getNbL() - 1) {
+          idc.i.setStartingP(new Coord(id.i.getStartingP().getL() + 1, id.i.getStartingP().getC()));
+          sol2 = algoFPT1DP(idc, table);
       }
+  
+      Solution sol3 = null;
+      if (id.i.getStartingP().getC() != 0) {
+          idc.i.setStartingP(new Coord(id.i.getStartingP().getL(), id.i.getStartingP().getC() - 1));
+          sol3 = algoFPT1DP(idc, table);
+      }
+  
+      Solution sol4 = null;
+      if (id.i.getStartingP().getC() != id.i.getNbC() - 1) {
+          idc.i.setStartingP(new Coord(id.i.getStartingP().getL(), id.i.getStartingP().getC() + 1));
+          sol4 = algoFPT1DP(idc, table);
+      }
+  
+      Solution bestSol = null;
+      int bestNbPieces = 0;
+  
+      if (sol1 != null && sol1.getNbPieces() > bestNbPieces) {
+          bestSol = sol1;
+          bestNbPieces = sol1.getNbPieces();
+      }
+      if (sol2 != null && sol2.getNbPieces() > bestNbPieces) {
+          bestSol = sol2;
+          bestNbPieces = sol2.getNbPieces();
+      }
+      if (sol3 != null && sol3.getNbPieces() > bestNbPieces) {
+          bestSol = sol3;
+          bestNbPieces = sol3.getNbPieces();
+      }
+      if (sol4 != null && sol4.getNbPieces() > bestNbPieces) {
+          bestSol = sol4;
+      }
+  
+      if (bestSol != null) {
+          sol.addAll(bestSol);
+          table.put(id, sol);
+          return sol;
+      } else {
+          return null;
+      }
+  }
+
+
+  public static Solution algoFPT1DPClient(InstanceDec id){
+    //si il est possible de collecter >= id.c pièces dans id.i, alors retourne une Solution de valeur >= c, sinon retourne null
+    //doit faire appel à algoFPT1DP
+
+    // Vérification rapide si la solution greedy permet de ramasser suffisamment de pièces
+    Solution greedy = greedySolver(id.i);
+    if (greedy.getNbPieces() >= id.c) {
+        return greedy;
+    }
+
+    // Initialisation de la table pour la programmation dynamique
+    HashMap<InstanceDec, Solution> table = new HashMap<>();
+    table.put(new InstanceDec(id.i, 0), new Solution());
+
+    // Appel récursif à algoFPT1DP
+    Solution solution = algoFPT1DP(id, table);
+
+    if (solution != null && solution.getNbPieces() >= id.c) {
+        return solution;
+    }
+
     return null;
-    }
-
-
-
-
-
-    public static Solution algoFPT1DP(InstanceDec id,  HashMap<InstanceDec,Solution> table) {
-        //même spécification que algoFPT1, si ce n'est que
-        // - si table.containsKey(id), alors id a déjà été calculée, et on se contente de retourner table.get(id)
-        // - sinon, alors on doit calculer la solution s pour id, la ranger dans la table (table.put(id,res)), et la retourner
-
-        //Remarques
-        // - ne doit pas modifier l'instance id en param (mais va modifier la table bien sûr)
-        // - même si le branchement est le même que dans algoFPT1, ne faites PAS appel à algoFPT1 (et donc il y aura de la duplication de code)
-
-
-        //à compléter
-        return null;
-    }
-
-
-    public static Solution algoFPT1DPClient(InstanceDec id){
-        //si il est possible de collecter >= id.c pièces dans id.i, alors retourne une Solution de valeur >= c, sinon retourne null
-        //doit faire appel à algoFPT1DP
-
-        //à completer
-        return null;
-
-    }
-
-
-
+  }
 }

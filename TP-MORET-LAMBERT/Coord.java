@@ -35,8 +35,31 @@ public class Coord {
         return Math.abs(cd.l - l) + Math.abs(cd.c - c);
     }
 
+    public int distanceTo(Coord other) {
+        int dx = other.getC() - this.getC();
+        int dy = other.getL() - this.getL();
+        return (int) Math.sqrt(dx*dx + dy*dy);
+    }
+
     public String toString() {
         return "(" + l + "," + c + ")";
+    }
+
+    public Coord nextTowards(Coord target) {
+        int dx = target.getC() - c;
+        int dy = target.getL() - l;
+    
+        if (dx > 0) {
+            return new Coord(l, c + 1);
+        } else if (dx < 0) {
+            return new Coord(l, c - 1);
+        } else if (dy > 0) {
+            return new Coord(l + 1, c);
+        } else if (dy < 0) {
+            return new Coord(l - 1, c);
+        } else {
+            return this;
+        }
     }
 
     @Override

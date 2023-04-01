@@ -20,7 +20,7 @@ class TestsAutomatiques {
         note +=runTest(TestsAutomatiques::testGreedyPermut1,"testGreedyPermut1",2);
         note +=runTest(TestsAutomatiques::testCalculerSol1,"testCalculerSol1",2);
         note +=runTest(TestsAutomatiques::testFPT1_1,"testFPT1_1",2);
-        note +=runTest(TestsAutomatiques::testBorneSup_1,"testBorneInf_1",1);
+        note +=runTest(TestsAutomatiques::testBorneSup_1,"testBorneSup_1",1);
         note +=runTest(TestsAutomatiques::testElemPermutHC_1,"testElemPermutHC_1",2);
         note +=runTest(TestsAutomatiques::testNbSteps_1,"testNbSteps_1",2);
 
@@ -181,6 +181,8 @@ class TestsAutomatiques {
         res.add(new Coord(0,1));
         res.add(new Coord(0,0));
         Solution s =  Algos.algoFPT1(id0);
+        System.out.println(s);
+        System.out.println(res);
         if(s != null && s.equals(res))
             return 1;
         else

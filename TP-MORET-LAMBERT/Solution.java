@@ -18,5 +18,8 @@ public class Solution extends ArrayList<Coord> {
       return nbPieces;
     }
 
+    public int getNbPieces() {
+      return this.size();
+  }
 
 }

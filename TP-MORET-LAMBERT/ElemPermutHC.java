@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class ElemPermutHC implements IElemHC {
@@ -92,9 +94,32 @@ public class ElemPermutHC implements IElemHC {
 
         //retourne voisins (sans doublons) à une distance <= dist
         //pour dist = 1, doit retourner getVoisinsImmediats();
+        if(dist == 1){
+            return getVoisinsImmediats();
+        }
+        ArrayList<ElemPermutHC> result = new ArrayList<ElemPermutHC>();
+        result.add(this);
 
-        //à compléter
-      return null;
+        for (int d = 1; d <= dist; d++) {
+            ArrayList<ElemPermutHC> newPermutations = new ArrayList<ElemPermutHC>();
+            for (ElemPermutHC e : result) {
+                for (int i = 0; i < e.permut.size() - 1; i++) {
+                    for (int j = i + 1; j < e.permut.size(); j++) {
+                        ElemPermutHC newPermut = new ElemPermutHC(e);
+                        Collections.swap(newPermut.permut, i, j);
+                        newPermutations.add(newPermut);
+                    }
+                }
+            }
+            result.addAll(newPermutations);
+        }
+
+        // Remove duplicates
+        HashSet<ElemPermutHC> set = new HashSet<ElemPermutHC>(result);
+        result.clear();
+        result.addAll(set);
+
+        return result;
     }
 
 }
